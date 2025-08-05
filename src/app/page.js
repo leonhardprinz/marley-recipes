@@ -7,13 +7,31 @@ export default function Page() {
   const [q, setQ] = useState('');
   const [selectedTags, setSelectedTags] = useState([]);
   const [ingredient, setIngredient] = useState('');
+  const [favorites, setFavorites] = useState([]);
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
 
+  // Fetch recipes
   useEffect(() => {
     fetch('/api/recipes')
       .then((r) => r.json())
       .then((data) => setAll(data))
       .catch(() => setAll([]));
   }, []);
+
+  // Load favorites from localStorage
+  useEffect(() => {
+    try {
+      const stored = JSON.parse(localStorage.getItem('favorites') || '[]');
+      if (Array.isArray(stored)) setFavorites(stored);
+    } catch (e) {
+      // ignore
+    }
+  }, []);
+
+  // Save favorites to localStorage
+  useEffect(() => {
+    localStorage.setItem('favorites', JSON.stringify(favorites));
+  }, [favorites]);
 
   const tags = useMemo(() => {
     const t = new Set();
@@ -32,6 +50,10 @@ export default function Page() {
     const ing = ingredient.trim().toLowerCase();
 
     return all.filter((r) => {
+      if (showFavoritesOnly && !favorites.includes(r.id)) {
+        return false;
+      }
+
       const matchesQuery =
         !qn ||
         r.title.toLowerCase().includes(qn) ||
@@ -48,12 +70,22 @@ export default function Page() {
 
       return matchesQuery && matchesIngredient && matchesTags;
     });
-  }, [all, q, ingredient, selectedTags]);
+  }, [all, q, ingredient, selectedTags, favorites, showFavoritesOnly]);
 
   const toggleTag = (t) => {
     setSelectedTags((prev) =>
       prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]
     );
+  };
+
+  const toggleFavorite = (id) => {
+    setFavorites((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
+  };
+
+  const toggleFavoritesFilter = () => {
+    setShowFavoritesOnly((prev) => !prev);
   };
 
   return (
@@ -76,6 +108,22 @@ export default function Page() {
           onChange={(e) => setIngredient(e.target.value)}
           style={{ padding: 10, border: '1px solid #ccc', borderRadius: 8 }}
         />
+      </div>
+
+      {/* Favorites filter button */}
+      <div style={{ marginBottom: 16 }}>
+        <button
+          onClick={toggleFavoritesFilter}
+          style={{
+            padding: '6px 10px',
+            borderRadius: 999,
+            border: '1px solid #bbb',
+            background: showFavoritesOnly ? '#f2f2f2' : 'white',
+            cursor: 'pointer'
+          }}
+        >
+          {showFavoritesOnly ? '★ Favoriten' : '☆ Favoriten'}
+        </button>
       </div>
 
       <details style={{ marginBottom: 16 }}>
@@ -114,6 +162,7 @@ export default function Page() {
             target="_blank"
             rel="noopener noreferrer"
             style={{
+              position: 'relative',
               textDecoration: 'none',
               color: 'inherit',
               border: '1px solid #eee',
@@ -123,6 +172,33 @@ export default function Page() {
               boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
             }}
           >
+            {/* Star overlay */}
+            <div
+              style={{
+                position: 'absolute',
+                top: 8,
+                right: 8,
+                zIndex: 1
+              }}
+            >
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  toggleFavorite(r.id);
+                }}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontSize: 20,
+                  lineHeight: 1
+                }}
+              >
+                {favorites.includes(r.id) ? '★' : '☆'}
+              </button>
+            </div>
+
             <div style={{ aspectRatio: '4/3', background: '#fafafa', overflow: 'hidden' }}>
               {r.image ? (
                 <img
