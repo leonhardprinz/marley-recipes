@@ -30,8 +30,10 @@ async function scrape() {
         !href.endsWith('/menu') &&
         !href.endsWith('/menu/') &&
         /\/menu\/[^/].+/.test(href)
+ 
       ) {
         hrefs.add(href);
+ 
       }
     }
     return Array.from(hrefs);
@@ -87,6 +89,8 @@ async function scrape() {
         } catch {
           image = null;
         }
+    
+      
       }
       const ingredients = Array.isArray(recipeNode && recipeNode.recipeIngredient)
         ? recipeNode.recipeIngredient.map((s) => s.trim()).filter(Boolean)
@@ -107,6 +111,7 @@ async function scrape() {
       if (recipeNode) {
         add(recipeNode.recipeCategory);
         add(recipeNode.keywords);
+        
       }
       const id = url.replace(/^https?:\/\//, '');
       recipes.push({
@@ -114,6 +119,7 @@ async function scrape() {
         title: title || (recipeNode && recipeNode.name) || 'Rezept',
         url,
         image,
+        
         tags: Array.from(new Set(tags.filter(Boolean).map((t) => t.toLowerCase()))),
         totalTimeMinutes,
         calories,
@@ -139,3 +145,4 @@ scrape().catch((e) => {
   console.error(e);
   process.exit(1);
 });
+
