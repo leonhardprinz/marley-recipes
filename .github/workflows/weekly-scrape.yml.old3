@@ -1,4 +1,4 @@
-name: Weekly scrape
+  name: Weekly scrape
 
 on:
   schedule:
