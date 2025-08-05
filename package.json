@@ -1,0 +1,23 @@
+{
+  "name": "marley-recipes",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "scrape": "node --loader ts-node/esm scripts/scrape.ts",
+    "scrape:js": "node scripts/scrape.js"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0",
+    "next": "14.2.5",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "playwright": "^1.46.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
+  }
+}
