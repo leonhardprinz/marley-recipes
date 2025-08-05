@@ -178,7 +178,7 @@ export default function Page() {
                 position: 'absolute',
                 top: 8,
                 right: 8,
-                zIndex: 1
+                zIndex: 5
               }}
             >
               <button
